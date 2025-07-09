@@ -26,4 +26,17 @@ export class UserValidation {
             .min(1, "Password is required")
             .max(100, "Password must be at most 100 characters long"),
     });
+
+    static readonly UPDATE: ZodType = z.object({
+        password: z
+            .string()
+            .min(1, "Password is required")
+            .max(100, "Password must be at most 100 characters long")
+            .optional(),
+        name: z
+            .string()
+            .min(1, "Name is required")
+            .max(100, "Name must be at most 100 characters long")
+            .optional(),
+    });
 }
