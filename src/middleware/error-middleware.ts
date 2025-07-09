@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, Request, NextFunction } from "express";
 import { ZodError } from "zod";
 import { ResponseError } from "../error/response-error";
 
@@ -10,16 +10,15 @@ export const errorMiddleware = async (
 ) => {
     if (error instanceof ZodError) {
         res.status(400).json({
-            errors: `Validation failed: ${JSON.stringify(error)}`,
+            errors: `Validation Error : ${JSON.stringify(error)}`,
         });
     } else if (error instanceof ResponseError) {
         res.status(error.status).json({
-            message: error.message,
+            errors: error.message,
         });
     } else {
         res.status(500).json({
-            message: "Internal server error",
-            details: error.message,
+            errors: error.message,
         });
     }
 };

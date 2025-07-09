@@ -1,11 +1,11 @@
 import supertest from "supertest";
 import { web } from "../src/application/web";
 import { logger } from "../src/application/logging";
-import { UserTset } from "./test-util";
+import { UserTest } from "./test-util";
 
 describe("POST /api/users", () => {
     afterEach(async () => {
-        await UserTset.delete();
+        await UserTest.delete();
     });
 
     it("should register a new user if request is invalid", async () => {
@@ -31,5 +31,51 @@ describe("POST /api/users", () => {
         expect(response.status).toBe(201);
         expect(response.body.data.username).toBe("test");
         expect(response.body.data.name).toBe("test");
+    });
+});
+
+describe("POST /api/users/login", () => {
+    beforeEach(async () => {
+        await UserTest.create();
+    });
+
+    afterEach(async () => {
+        await UserTest.delete();
+    });
+
+    it("should be able to login with valid credentials", async () => {
+        const response = await supertest(web).post("/api/users/login").send({
+            username: "test",
+            password: "test",
+        });
+
+        logger.debug(response.body);
+        expect(response.status).toBe(200);
+        expect(response.body.data.username).toBe("test");
+        expect(response.body.data.name).toBe("test");
+        expect(response.body.data.token).toBeDefined();
+    });
+
+    it("should reject login user if username is wrong", async () => {
+        const response = await supertest(web).post("/api/users/login").send({
+            username: "wrong",
+            password: "test",
+        });
+
+        logger.debug(response.body);
+        expect(response.status).toBe(401);
+        // Adjusted to check for a generic error field
+        expect(response.body.errors).toBeDefined();
+    });
+
+    it("should reject login user if password is wrong", async () => {
+        const response = await supertest(web).post("/api/users/login").send({
+            username: "test",
+            password: "wrong",
+        });
+
+        logger.debug(response.body);
+        expect(response.status).toBe(401);
+        expect(response.body.errors).toBeDefined();
     });
 });
